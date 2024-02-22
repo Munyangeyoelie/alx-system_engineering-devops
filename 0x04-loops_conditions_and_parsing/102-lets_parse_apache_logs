@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
-# parses an Apache log file and displays the IP and HTTP code for each visitor.
+# Parses Apache log files in list format.
+#   Displays the IP and HTTP status code.
 
-awk '{print $1,$9}' apache-access.log
+awk '{print $1 " " $9}' apache-access.log
