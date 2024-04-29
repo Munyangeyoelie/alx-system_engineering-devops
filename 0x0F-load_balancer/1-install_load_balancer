@@ -1,23 +1,29 @@
 #!/usr/bin/env bash
-# Installs and setup haproxy
-
-apt-get install -y software-properties-common
-add-apt-repository -y ppa:vbernat/haproxy-1.8
+# Configure Nginx so that its HTTP response contains
+# a custom header
+#
+balancer="\
+frontend haproxy_balancer
+    bind *:80
+    mode http
+    default_backend webservers
+    
+backend webservers
+    balance roundrobin
+    server 185885-web-01  54.210.47.110 check
+    server 185885-web-02 54.210.47.110 check
+"
+# Update packages
 apt-get -y update
-apt-get install -y haproxy=1.8.\*
+apt-get -y upgrade
 
-echo "ENABLED=1" > /etc/default/haproxy
+# Add HAProxy PPA
+apt-get -y install software-properties-common
+add-apt-repository -y ppa:vbernat/haproxy-2.5
+apt-get -y update
 
-# Listen to web1 and web2 servers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-echo "
-   listen load_balancer
-   bind *:80
-   mode http
-   balance roundrobin
-   option httpclose
-   option forwardfor
-   server 185885-web-01 44.200.83.158:80 check
-   server 185885-web-02 3.237.16.226:80 check
-" >> /etc/haproxy/haproxy.cfg
-
-service haproxy start
+# Install HAProxy
+apt-get -y install haproxy
+cp -a /etc/haproxy/haproxy.cfg{,.orig}
+echo "$balancer" >> /etc/haproxy/haproxy.cfg
+service haproxy restart
