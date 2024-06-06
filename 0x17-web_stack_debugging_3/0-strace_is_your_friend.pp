@@ -1,10 +1,6 @@
-# A puppet manuscript to replace a line in a file on a server
+# automated puppet fix (to find out why Apache is returning a 500 error)
 
-$file_to_edit = '/var/www/html/wp-settings.php'
-
-#replace line containing "phpp" with "php"
-
-exec { 'replace_line':
-  command => "sed -i 's/phpp/php/g' ${file_to_edit}",
-  path    => ['/bin','/usr/bin']
+exec { 'Fix wordpress site':
+  command  => 'sudo sed -i "s/.phpp/.php/" /var/www/html/wp-settings.php',
+  provider => shell,
 }
